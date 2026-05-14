@@ -13,6 +13,22 @@ services:
     networks:
       - gymlog-network
 
+  gymlog-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gymlog-api
+    depends_on:
+      - gymlog-db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=gymlog-db,1433;Database=GymLogDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False
+    ports:
+      - "8080:8080"
+    networks:
+      - gymlog-network
+
 volumes:
   gymlog-db-data:
 
