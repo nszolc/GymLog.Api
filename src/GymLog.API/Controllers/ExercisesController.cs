@@ -1,8 +1,6 @@
 ﻿using GymLog.Application.DTOs.Exercises;
-using GymLog.Application.Mappings;
-using GymLog.Infrastructure.Data;
+using GymLog.Application.Services.Exercises;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GymLog.API.Controllers;
 
@@ -10,52 +8,36 @@ namespace GymLog.API.Controllers;
 [Route("api/[controller]")]
 public class ExercisesController : ControllerBase
 {
-    private readonly GymLogDbContext _db;
+    private readonly IExerciseService _service;
 
-    public ExercisesController(GymLogDbContext db)
+    public ExercisesController(IExerciseService service)
     {
-        _db = db;
+        _service = service;
     }
-
-    // GET /api/exercises
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ExerciseDto>>> GetAll()
     {
-        var exercises = await _db.Exercises
-            .AsNoTracking()
-            .ToListAsync();
-        
-        var dtos = exercises.Select(e => e.ToDto());
-        return Ok(dtos);
+        var exercises = await _service.GetAllAsync();
+        return Ok(exercises);
     }
-
-    // GET /api/exercises/5
+    
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ExerciseDto>> GetById(int id)
     {
-        var exercise = await _db.Exercises
-            .AsNoTracking() // no modification
-            .FirstOrDefaultAsync(e => e.Id == id);
-        
-        if (exercise is null)
-            return NotFound();
-        
-        return Ok(exercise.ToDto());
+        var exercise = await _service.GetByIdAsync(id);
+        return Ok(exercise);
     }
-
-    // POST /api/exercises
+    
     [HttpPost]
     public async Task<ActionResult<ExerciseDto>> Create(CreateExerciseDto dto)
     {
-        var exercise = dto.ToEntity();
-        
-        _db.Exercises.Add(exercise);
-        await _db.SaveChangesAsync();
+        var created = await _service.CreateAsync(dto);
         
         return CreatedAtAction(
             nameof(GetById),
-            new { id = exercise.Id },
-            exercise.ToDto()
+            new { id = created.Id },
+            created
         );
     }
 
@@ -63,14 +45,7 @@ public class ExercisesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateExerciseDto dto)
     {
-        var exercise = await _db.Exercises.FindAsync(id);
-        
-        if (exercise is null)
-            return NotFound();
-        
-        dto.UpdateEntity(exercise);
-        await _db.SaveChangesAsync();
-        
+        await _service.UpdateAsync(id, dto);
         return NoContent();
     }
 
@@ -78,14 +53,7 @@ public class ExercisesController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var exercise = await _db.Exercises.FindAsync(id);
-        
-        if (exercise is null)
-            return NotFound();
-        
-        _db.Exercises.Remove(exercise);
-        await _db.SaveChangesAsync();
-        
+        await _service.DeleteAsync(id);
         return NoContent();
     }
 }

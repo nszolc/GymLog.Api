@@ -3,7 +3,7 @@ using GymLog.Application.DTOs.Exercises;
 
 namespace GymLog.Application.Validators.Exercises;
 
-public class UpdateExerciseDtoValidator : AbstractValidator<CreateExerciseDto>
+public class UpdateExerciseDtoValidator : AbstractValidator<UpdateExerciseDto>
 {
     public UpdateExerciseDtoValidator()
     {

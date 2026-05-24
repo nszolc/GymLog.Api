@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GymLog.Domain\GymLog.Domain.csproj" />
+      <ProjectReference Include="..\GymLog.Infrastructure\GymLog.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GymLog.Application\GymLog.Application.csproj" />
       <ProjectReference Include="..\GymLog.Domain\GymLog.Domain.csproj" />
     </ItemGroup>
 
