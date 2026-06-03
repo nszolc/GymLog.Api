@@ -2,7 +2,7 @@
 
 > A REST API for tracking strength training workouts, built with .NET 9.
 
-GymLog API is built to practice modern .NET development. It's a REST API for managing gym exercises (workouts coming later). I built it to explore Clean Architecture, dependency injection, FluentValidation, and centralized error handling with custom exceptions and middleware.
+GymLog API is built to practice modern .NET development. It's a REST API for managing gym exercises (workouts coming later), with a lightweight HTML/Tailwind frontend for full CRUD on exercises. I built it to explore Clean Architecture, dependency injection, FluentValidation, and centralized error handling with custom exceptions and middleware.
 
 ## Tech Stack
 
@@ -12,6 +12,8 @@ GymLog API is built to practice modern .NET development. It's a REST API for man
 - **Microsoft SQL Server** - database (via Docker)
 - **FluentValidation 12** - input validation
 - **Swagger / OpenAPI** - API documentation
+- **Tailwind CSS v4** - frontend styling (browser build, no bundler)
+- **Vanilla JS frontend** - static HTML UI served from `wwwroot`
 - **Docker + Docker Compose** - containerization
 - **Clean Architecture** - layered architecture pattern
 
@@ -42,6 +44,14 @@ docker compose up -d --build
 ```
 
 The API will be available at `http://localhost:8080/swagger`.
+
+### Web UI
+
+A static frontend is served from `wwwroot` and available at the application root:
+
+- **`http://localhost:8080/`** - exercise catalog with create, edit, and delete
+
+It's a single `index.html` page styled with Tailwind CSS v4 (loaded via browser CDN) and vanilla JavaScript that talks to the same `/api/exercises` endpoints described below. No separate build step is required.
 
 ### API Endpoints
 
