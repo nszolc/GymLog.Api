@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymLog – Ćwiczenia</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-slate-950 font-sans text-slate-100">
+    <header class="px-4 pt-6 pb-2 text-center">
+        <h1 class="inline-flex items-center gap-2.5 text-3xl font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 shrink-0 text-blue-500" aria-hidden="true"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.866-4 7-9 7-4.077 0-8.153-.82-10.371-2.462-.426-.316-.631-.832-.62-1.362C2.118 12.723 2.627 2 10 2a3 3 0 0 1 3 3 2 2 0 0 1-2 2c-1.105 0-1.64-.444-2-1"/><path d="M15 14a5 5 0 0 0-7.584 2"/><path d="M9.964 6.825C8.019 7.977 9.5 13 8 15"/></svg>
+            GymLog
+        </h1>
+        <p class="mt-1 text-slate-400">Katalog ćwiczeń</p>
+    </header>
+
+    <main class="mx-auto grid max-w-3xl gap-5 p-4">
+        <section class="rounded-xl border border-slate-700 bg-slate-900 p-5">
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold leading-none">
+                <svg id="form-title-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-blue-500" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                <span id="form-title-text" class="leading-none">Dodaj ćwiczenie</span>
+            </h2>
+            <form id="exercise-form" novalidate>
+                <input type="hidden" id="exercise-id">
+
+                <div class="mb-3.5 flex flex-col gap-1.5">
+                    <label for="name" class="text-sm text-slate-400">Nazwa *</label>
+                    <input type="text" id="name" required maxlength="100" placeholder="np. Wyciskanie sztangi"
+                           class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none">
+                </div>
+
+                <div class="mb-3.5 flex flex-col gap-1.5">
+                    <label for="description" class="text-sm text-slate-400">Opis</label>
+                    <textarea id="description" rows="2" maxlength="500" placeholder="Opcjonalny opis"
+                              class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex flex-wrap gap-3.5">
+                    <div class="mb-3.5 flex flex-1 basis-48 flex-col gap-1.5">
+                        <label for="muscleGroup" class="text-sm text-slate-400">Grupa mięśniowa *</label>
+                        <select id="muscleGroup" required
+                                class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"></select>
+                    </div>
+
+                    <div class="mb-3.5 flex flex-1 basis-48 flex-col gap-1.5">
+                        <label for="exerciseType" class="text-sm text-slate-400">Typ *</label>
+                        <select id="exerciseType" required
+                                class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"></select>
+                    </div>
+                </div>
+
+                <div class="mt-1.5 flex gap-2.5">
+                    <button type="submit" id="submit-btn"
+                            class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-500">Dodaj</button>
+                    <button type="button" id="cancel-btn" hidden
+                            class="inline-flex cursor-pointer items-center justify-center rounded-lg border border-slate-700 bg-transparent px-4 py-2 text-sm text-slate-100 transition-colors hover:bg-slate-800">Anuluj</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="rounded-xl border border-slate-700 bg-slate-900 p-5">
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-lg font-semibold">Lista ćwiczeń</h2>
+                <button type="button" id="refresh-btn"
+                        class="inline-flex cursor-pointer items-center justify-center rounded-lg border border-slate-700 bg-transparent px-4 py-2 text-sm text-slate-100 transition-colors hover:bg-slate-800">Odśwież</button>
+            </div>
+
+            <div id="status" class="mb-3 rounded-lg px-3.5 py-2.5 text-sm" hidden></div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-sm">
+                    <thead>
+                        <tr>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">#</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">Nazwa</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">Opis</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">Grupa</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">Typ</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400">Własne</th>
+                            <th class="border-b border-slate-700 px-3 py-2.5 text-left text-xs font-semibold uppercase text-slate-400"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="exercise-tbody"></tbody>
+                </table>
+            </div>
+            <p id="empty-state" class="p-5 text-center text-slate-400" hidden>Brak ćwiczeń. Dodaj pierwsze powyżej.</p>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
