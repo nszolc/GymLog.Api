@@ -63,6 +63,70 @@ It's a single `index.html` page styled with Tailwind CSS v4 (loaded via browser 
 | PUT | `/api/exercises/{id}` | Update exercise |
 | DELETE | `/api/exercises/{id}` | Delete exercise |
 
+## Future Features
+
+The next development steps will focus on expanding the API beyond the exercise catalog and turning GymLog into a real workout tracking application.
+
+### 1. Workouts
+
+Add a new main resource for training sessions.
+
+Planned endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/workouts` | Get all workouts |
+| GET | `/api/workouts/{id}` | Get workout by ID |
+| POST | `/api/workouts` | Create new workout |
+| PUT | `/api/workouts/{id}` | Update workout |
+| DELETE | `/api/workouts/{id}` | Delete workout |
+
+Initial model idea:
+
+- `Id`
+- `Date`
+- `Notes`
+- `CreatedAt`
+
+### 2. Exercises in Workouts
+
+Connect workouts with existing exercises, so one workout can contain multiple exercises.
+
+Planned endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/workouts/{workoutId}/exercises` | Add exercise to workout |
+| DELETE | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}` | Remove exercise from workout |
+
+Initial model idea:
+
+- `Id`
+- `WorkoutId`
+- `ExerciseId`
+- `Order`
+
+### 3. Workout Sets
+
+Track performed sets for each exercise inside a workout.
+
+Planned endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets` | Add set to workout exercise |
+| PUT | `/api/sets/{id}` | Update set |
+| DELETE | `/api/sets/{id}` | Delete set |
+
+Initial model idea:
+
+- `Id`
+- `WorkoutExerciseId`
+- `SetNumber`
+- `Reps`
+- `WeightKg`
+- `Notes`
+
 ## Status
 
 🚧 Work in progress - this is a learning project, more features coming soon.
