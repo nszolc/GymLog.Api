@@ -4,16 +4,21 @@ using FluentValidation;
 using GymLog.Application.Validators.Exercises;
 using GymLog.API.Middleware;
 using GymLog.Application.Services.Exercises;
+using GymLog.Application.Services.Workouts;
+using GymLog.Application.Validators.Workouts;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddValidatorsFromAssemblyContaining<CreateExerciseDtoValidator>();
-builder.Services.AddScoped<IExerciseService, ExerciseService>();  // ← NOWE
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateExerciseDtoValidator>(); //walidatory
+builder.Services.AddValidatorsFromAssemblyContaining<CreateWorkoutDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateWorkoutDtoValidator>();
+
+builder.Services.AddScoped<IExerciseService, ExerciseService>();  // serwisy
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 
 builder.Services.AddDbContext<GymLogDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -32,7 +37,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Serwowanie frontendu z wwwroot (index.html jako strona domyślna)
+// index.html jako strona domyślna)
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
