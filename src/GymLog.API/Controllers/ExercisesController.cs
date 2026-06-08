@@ -23,14 +23,14 @@ public class ExercisesController : ControllerBase
     }
     
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<ExerciseDto>> GetById(int id)
+    public async Task<ActionResult<ExerciseDto>> GetById (int id)
     {
         var exercise = await _service.GetByIdAsync(id);
         return Ok(exercise);
     }
     
     [HttpPost]
-    public async Task<ActionResult<ExerciseDto>> Create(CreateExerciseDto dto)
+    public async Task<ActionResult<ExerciseDto>> Create ([FromBody] CreateExerciseDto dto)
     {
         var created = await _service.CreateAsync(dto);
         
@@ -43,7 +43,7 @@ public class ExercisesController : ControllerBase
 
     // PUT /api/exercises/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, UpdateExerciseDto dto)
+    public async Task<IActionResult> Update (int id, [FromBody] UpdateExerciseDto dto)
     {
         await _service.UpdateAsync(id, dto);
         return NoContent();
@@ -51,7 +51,7 @@ public class ExercisesController : ControllerBase
 
     // DELETE /api/exercises/5
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete (int id)
     {
         await _service.DeleteAsync(id);
         return NoContent();
