@@ -10,4 +10,5 @@ public class Exercise
     public MuscleGroup MuscleGroup { get; set; }
     public ExerciseType ExerciseType { get; set; }
     public bool IsCustom { get; set; }
+    public ICollection<WorkoutExercise> WorkoutExercises { get; set; } = new List<WorkoutExercise>();
 }
