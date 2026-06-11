@@ -2,7 +2,7 @@
 
 > A REST API for tracking strength training workouts, built with .NET 9.
 
-GymLog API is built to practice modern .NET development. It's a REST API for managing gym exercises (workouts coming later), with a lightweight HTML/Tailwind frontend for full CRUD on exercises. I built it to explore Clean Architecture, dependency injection, FluentValidation, and centralized error handling with custom exceptions and middleware.
+GymLog API is built to practice modern .NET development. It's a REST API for managing gym exercises and workout sessions, with a lightweight HTML/Tailwind frontend for full CRUD on exercises. I built it to explore Clean Architecture, dependency injection, FluentValidation, and centralized error handling with custom exceptions and middleware.
 
 ## Tech Stack
 
@@ -55,6 +55,8 @@ It's a single `index.html` page styled with Tailwind CSS v4 (loaded via browser 
 
 ### API Endpoints
 
+#### Exercises
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/exercises` | Get all exercises |
@@ -63,15 +65,7 @@ It's a single `index.html` page styled with Tailwind CSS v4 (loaded via browser 
 | PUT | `/api/exercises/{id}` | Update exercise |
 | DELETE | `/api/exercises/{id}` | Delete exercise |
 
-## Future Features
-
-The next development steps will focus on expanding the API beyond the exercise catalog and turning GymLog into a real workout tracking application.
-
-### 1. Workouts
-
-Add a new main resource for training sessions.
-
-Planned endpoints:
+#### Workouts
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -81,12 +75,27 @@ Planned endpoints:
 | PUT | `/api/workouts/{id}` | Update workout |
 | DELETE | `/api/workouts/{id}` | Delete workout |
 
-Initial model idea:
+## Recent Updates
 
-- `Id`
-- `Date`
-- `Notes`
-- `CreatedAt`
+- Added `Workout` as a domain entity for training sessions.
+- Added full CRUD API support for workouts.
+- Added workout DTOs, mappings, application service, controller, and FluentValidation validators.
+- Added missing create validator for exercises so the API can start correctly with dependency injection validation enabled.
+
+## Future Features
+
+The next development steps will focus on connecting workouts with exercises, tracking performed sets, and expanding the frontend beyond the exercise catalog.
+
+### 1. Database Migration for Workouts
+
+Add and apply an EF Core migration for the `Workouts` table so the database schema matches the new workout API code.
+
+Planned command:
+
+```bash
+dotnet ef migrations add AddWorkouts --project src/GymLog.Infrastructure --startup-project src/GymLog.API
+dotnet ef database update --project src/GymLog.Infrastructure --startup-project src/GymLog.API
+```
 
 ### 2. Exercises in Workouts
 
@@ -127,6 +136,23 @@ Initial model idea:
 - `WeightKg`
 - `Notes`
 
+### 4. Workout Frontend
+
+Extend the static frontend from exercise management to workout tracking.
+
+Planned UI features:
+
+- List workouts by date.
+- Create and edit workout notes.
+- Add exercises to a workout.
+- Track sets, reps, and weight.
+
+### 5. Tests and Quality
+
+- Add integration tests for exercise and workout endpoints.
+- Add validation tests for DTO validators.
+- Add API smoke tests for Docker Compose startup.
+
 ## Status
 
-🚧 Work in progress - this is a learning project, more features coming soon.
+Work in progress. Exercise CRUD and workout CRUD are implemented in the API. The current frontend supports exercise management; workout tracking UI and exercise/set tracking are planned next.
