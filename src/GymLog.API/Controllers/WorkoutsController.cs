@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GymLog.Application.DTOs.Workouts;
+using GymLog.Application.DTOs.WorkoutExercise;
 using GymLog.Application.Services.Workouts;
 
 namespace GymLog.API.Controllers;
@@ -49,5 +50,15 @@ public class WorkoutsController : ControllerBase
     {
         await _service.DeleteAsync(id);
         return NoContent();
+    }
+
+    //POST /api/workouts/{workoutId}/exercises
+    [HttpPost("{workoutId:int}/exercises")]
+    public async Task<ActionResult<WorkoutExerciseDto>> AddExercise(
+        int workoutId,
+        [FromBody] AddWorkoutExerciseDto dto)
+    {
+        var workoutExercise = await _service.AddExerciseAsync(workoutId, dto);
+        return CreatedAtAction(nameof(GetById), new { id = workoutId }, workoutExercise);
     }
 }

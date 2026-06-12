@@ -1,4 +1,5 @@
 ﻿using GymLog.Application.DTOs.Workouts;
+using GymLog.Application.DTOs.WorkoutExercise;
 
 namespace GymLog.Application.Services.Workouts;
 
@@ -9,4 +10,5 @@ public interface IWorkoutService
     Task<WorkoutDto> CreateAsync(CreateWorkoutDto dto);
     Task UpdateAsync(int id, UpdateWorkoutDto dto);
     Task DeleteAsync(int id);
+    Task<WorkoutExerciseDto> AddExerciseAsync(int workoutId, AddWorkoutExerciseDto dto);
 }

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using GymLog.Application.DTOs.Workouts;
+using GymLog.Application.DTOs.WorkoutExercise;
 using GymLog.Application.Mappings;
+using GymLog.Domain.Entities;
 using GymLog.Domain.Exceptions;
 using GymLog.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +94,45 @@ public class WorkoutService : IWorkoutService
         if (workout == null) throw new NotFoundException($"Workout with id {id} not found");
         _db.Workouts.Remove(workout);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<WorkoutExerciseDto> AddExerciseAsync(int workoutId, AddWorkoutExerciseDto dto)
+    {
+        var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId);
+        if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+
+        var exercise = await _db.Exercises.FirstOrDefaultAsync(e => e.Id == dto.ExerciseId);
+        if (exercise == null) throw new NotFoundException($"Exercise with id {dto.ExerciseId} not found");
+
+        var alreadyAdded = await _db.WorkoutExercises
+            .AnyAsync(e => e.WorkoutId == workoutId && e.ExerciseId == dto.ExerciseId);
+        if (alreadyAdded)
+        {
+            throw new ConflictException($"Exercise with id {dto.ExerciseId} is already added to workout {workoutId}");
+        }
+
+        var lastOrder = await _db.WorkoutExercises
+            .Where(e => e.WorkoutId == workoutId)
+            .MaxAsync(e => (int?)e.Order) ?? 0;
+
+        var workoutExercise = new WorkoutExercise
+        {
+            WorkoutId = workoutId,
+            ExerciseId = dto.ExerciseId,
+            Order = lastOrder + 1
+        };
+
+        _db.WorkoutExercises.Add(workoutExercise);
+        await _db.SaveChangesAsync();
+
+        return new WorkoutExerciseDto
+        {
+            Id = workoutExercise.Id,
+            WorkoutId = workoutExercise.WorkoutId,
+            ExerciseId = workoutExercise.ExerciseId,
+            ExerciseName = exercise.Name,
+            Order = workoutExercise.Order
+        };
     }
     
 }
