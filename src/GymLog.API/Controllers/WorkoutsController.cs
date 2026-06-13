@@ -61,4 +61,13 @@ public class WorkoutsController : ControllerBase
         var workoutExercise = await _service.AddExerciseAsync(workoutId, dto);
         return CreatedAtAction(nameof(GetById), new { id = workoutId }, workoutExercise);
     }
+    //GET /api/workouts/{workoutId}/exercises
+    [HttpGet("{workoutId:int}/exercises")]
+    public async Task<ActionResult<IEnumerable<WorkoutExerciseDto>>> GetExercises(int workoutId)
+    {
+        //IEnumerable ponieważ zwraca listę!
+        var workoutExercises = await _service.GetExercisesAsync(workoutId);
+        return Ok(workoutExercises);
+    }
+    
 }

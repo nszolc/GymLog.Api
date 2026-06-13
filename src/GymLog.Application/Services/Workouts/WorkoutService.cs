@@ -134,5 +134,25 @@ public class WorkoutService : IWorkoutService
             Order = workoutExercise.Order
         };
     }
-    
+    public async Task<IEnumerable<WorkoutExerciseDto>> GetExercisesAsync(int workoutId)
+    {
+        var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId);
+        if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+        
+        var workoutExercises = await _db.WorkoutExercises
+            .AsNoTracking()
+            .Include(x => x.Exercise)
+            .Where(x => x.WorkoutId == workoutId)
+            .OrderBy(x => x.Order)
+            .ToListAsync();
+        
+        return workoutExercises.Select(x => new WorkoutExerciseDto
+        {
+            Id = x.Id,
+            WorkoutId = x.WorkoutId,
+            ExerciseId = x.ExerciseId,
+            ExerciseName = x.Exercise.Name,
+            Order = x.Order
+        });
+    }
 }
