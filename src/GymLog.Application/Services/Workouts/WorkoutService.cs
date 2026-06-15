@@ -155,4 +155,20 @@ public class WorkoutService : IWorkoutService
             Order = x.Order
         });
     }
+
+    public async Task RemoveExerciseAsync(int workoutId, int workoutExerciseId)
+    {
+        var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId); 
+        if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+
+        var workoutExercise = await _db.WorkoutExercises
+            .FirstOrDefaultAsync(e => e.Id == workoutExerciseId && e.WorkoutId == workoutId);
+        if (workoutExercise == null)
+        {
+            throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found in workout {workoutId}");
+        }
+
+        _db.WorkoutExercises.Remove(workoutExercise);
+        await _db.SaveChangesAsync();
+    }
 }

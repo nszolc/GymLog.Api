@@ -69,5 +69,11 @@ public class WorkoutsController : ControllerBase
         var workoutExercises = await _service.GetExercisesAsync(workoutId);
         return Ok(workoutExercises);
     }
-    
+    //DELETE /api/workouts/{workoutId}/exercises/{workoutExerciseId}
+    [HttpDelete("{workoutId:int}/exercises/{workoutExerciseId:int}")]
+    public async Task<IActionResult> DeleteExercise(int workoutId, int workoutExerciseId)
+    {
+        await _service.RemoveExerciseAsync(workoutId, workoutExerciseId);
+        return NoContent();
+    }
 }
