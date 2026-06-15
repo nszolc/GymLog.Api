@@ -11,6 +11,7 @@ public class GymLogDbContext : DbContext
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<Workout> Workouts => Set<Workout>();
     public DbSet<WorkoutExercise> WorkoutExercises => Set<WorkoutExercise>();
+    public DbSet<WorkoutSet> WorkoutSets => Set<WorkoutSet>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +25,15 @@ public class GymLogDbContext : DbContext
                 .WithMany(x => x.WorkoutExercises)
                 .HasForeignKey(x => x.ExerciseId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<WorkoutSet>(WorkoutSet =>
+        {
+            WorkoutSet.HasOne(x => x.WorkoutExercise)
+                .WithMany(x => x.Sets)
+                .HasForeignKey(x => x.WorkoutExerciseId);
+            
+            WorkoutSet.Property(x => x.WeightKg)
+                .HasPrecision(6, 2);
         });
     }
 }

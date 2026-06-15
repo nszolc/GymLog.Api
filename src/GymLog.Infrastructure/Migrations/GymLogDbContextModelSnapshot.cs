@@ -96,6 +96,37 @@ namespace GymLog.Infrastructure.Migrations
                     b.ToTable("WorkoutExercises");
                 });
 
+            modelBuilder.Entity("GymLog.Domain.Entities.WorkoutSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Reps")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SetNumber")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<int>("WorkoutExerciseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkoutExerciseId");
+
+                    b.ToTable("WorkoutSets");
+                });
+
             modelBuilder.Entity("GymLog.Domain.Entities.WorkoutExercise", b =>
                 {
                     b.HasOne("GymLog.Domain.Entities.Exercise", "Exercise")
@@ -115,6 +146,17 @@ namespace GymLog.Infrastructure.Migrations
                     b.Navigation("Workout");
                 });
 
+            modelBuilder.Entity("GymLog.Domain.Entities.WorkoutSet", b =>
+                {
+                    b.HasOne("GymLog.Domain.Entities.WorkoutExercise", "WorkoutExercise")
+                        .WithMany("Sets")
+                        .HasForeignKey("WorkoutExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WorkoutExercise");
+                });
+
             modelBuilder.Entity("GymLog.Domain.Entities.Exercise", b =>
                 {
                     b.Navigation("WorkoutExercises");
@@ -123,6 +165,11 @@ namespace GymLog.Infrastructure.Migrations
             modelBuilder.Entity("GymLog.Domain.Entities.Workout", b =>
                 {
                     b.Navigation("WorkoutExercises");
+                });
+
+            modelBuilder.Entity("GymLog.Domain.Entities.WorkoutExercise", b =>
+                {
+                    b.Navigation("Sets");
                 });
 #pragma warning restore 612, 618
         }
