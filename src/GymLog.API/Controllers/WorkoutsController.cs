@@ -2,6 +2,7 @@
 using GymLog.Application.DTOs.Workouts;
 using GymLog.Application.DTOs.WorkoutExercise;
 using GymLog.Application.Services.Workouts;
+using GymLog.Application.DTOs.WorkoutSet;
 
 namespace GymLog.API.Controllers;
 
@@ -75,5 +76,13 @@ public class WorkoutsController : ControllerBase
     {
         await _service.RemoveExerciseAsync(workoutId, workoutExerciseId);
         return NoContent();
+    }
+    //POST /api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets
+    [HttpPost("{workoutId:int}/exercises/{workoutExerciseId:int}/sets")]
+    public async Task<ActionResult<WorkoutSetDto>> AddSet(int workoutId, int workoutExerciseId,
+        [FromBody] AddWorkoutSetDto dto)
+    {
+        var workoutSet = await _service.AddSetAsync(workoutId, workoutExerciseId, dto);
+        return Ok(workoutSet);
     }
 }

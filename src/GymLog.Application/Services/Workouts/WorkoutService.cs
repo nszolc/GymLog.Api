@@ -7,6 +7,8 @@ using GymLog.Domain.Exceptions;
 using GymLog.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using ValidationException = GymLog.Domain.Exceptions.ValidationException;
+using GymLog.Application.DTOs.WorkoutSet;
+
 
 
 namespace GymLog.Application.Services.Workouts;
@@ -16,15 +18,18 @@ public class WorkoutService : IWorkoutService
     private readonly GymLogDbContext _db;
     private readonly IValidator<CreateWorkoutDto> _createValidator;
     private readonly IValidator<UpdateWorkoutDto> _updateValidator;
+    private readonly IValidator<AddWorkoutSetDto> _addSetValidator;
     
     public WorkoutService(
         GymLogDbContext db,
         IValidator<CreateWorkoutDto> createValidator,
-        IValidator<UpdateWorkoutDto> updateValidator)  
+        IValidator<UpdateWorkoutDto> updateValidator,
+        IValidator<AddWorkoutSetDto> addSetValidator)  
     {
         _db = db;
         _createValidator = createValidator;
         _updateValidator = updateValidator;  
+        _addSetValidator = addSetValidator;
     }
     
     public async Task<IEnumerable<WorkoutDto>> GetAllAsync()
@@ -170,5 +175,44 @@ public class WorkoutService : IWorkoutService
 
         _db.WorkoutExercises.Remove(workoutExercise);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<WorkoutSetDto> AddSetAsync(int workoutId, int workoutExerciseId, AddWorkoutSetDto dto)
+    {
+        
+            var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId);
+            if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+
+            var workoutExercise = await _db.WorkoutExercises.FirstOrDefaultAsync(e => e.Id == workoutExerciseId   && e.WorkoutId == workoutId);
+            if (workoutExercise == null)  throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found");
+        //wylicz następny SetNumber
+        var lastSetNumber = await _db.WorkoutSets
+            .Where(x => x.WorkoutExerciseId == workoutExerciseId)
+            .MaxAsync(x => (int?)x.SetNumber) ?? 0;
+
+        var nextSetNumber = lastSetNumber + 1;
+           
+        //utwórz WorkoutSet
+        var workoutSet = new WorkoutSet
+        {
+            WorkoutExerciseId = workoutExerciseId,
+            SetNumber = nextSetNumber,
+            Reps = dto.Reps,
+            WeightKg = dto.WeightKg,
+            Notes = dto.Notes
+        };
+        //zapisz do bazy
+        _db.WorkoutSets.Add(workoutSet);
+        await _db.SaveChangesAsync();
+        //zwróć WorkoutSetDto
+        return new WorkoutSetDto
+        {
+            Id = workoutSet.Id,
+            WorkoutExerciseId = workoutSet.WorkoutExerciseId, 
+            SetNumber = workoutSet.SetNumber,
+            Reps = workoutSet.Reps,
+            WeightKg = workoutSet.WeightKg,
+            Notes = workoutSet.Notes
+        };
     }
 }
