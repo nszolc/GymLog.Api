@@ -37,7 +37,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// index.html jako strona domyślna)
+// index.html jako strona domyślna
 app.UseDefaultFiles();
 app.UseStaticFiles();
 

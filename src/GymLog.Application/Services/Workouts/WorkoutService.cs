@@ -179,12 +179,23 @@ public class WorkoutService : IWorkoutService
 
     public async Task<WorkoutSetDto> AddSetAsync(int workoutId, int workoutExerciseId, AddWorkoutSetDto dto)
     {
+        var result = await _addSetValidator.ValidateAsync(dto);
+        if (!result.IsValid)
+        {
+            var errors = result.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(e => e.ErrorMessage).ToArray()
+                );
+            throw new ValidationException(errors);
+        }
         
-            var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId);
-            if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+        var workoutExists = await _db.Workouts.AnyAsync(e => e.Id == workoutId);
+        if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
 
-            var workoutExercise = await _db.WorkoutExercises.FirstOrDefaultAsync(e => e.Id == workoutExerciseId   && e.WorkoutId == workoutId);
-            if (workoutExercise == null)  throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found");
+        var workoutExercise = await _db.WorkoutExercises.FirstOrDefaultAsync(e => e.Id == workoutExerciseId   && e.WorkoutId == workoutId);
+        if (workoutExercise == null)  throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found");
         //wylicz następny SetNumber
         var lastSetNumber = await _db.WorkoutSets
             .Where(x => x.WorkoutExerciseId == workoutExerciseId)
