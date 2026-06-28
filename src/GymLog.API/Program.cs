@@ -25,6 +25,11 @@ builder.Services.AddDbContext<GymLogDbContext>(options =>
 
 var app = builder.Build();
 
+if (app.Configuration.GetValue<bool>("Database:ApplyMigrations"))
+{
+    await ApplyMigrationsAsync(app);
+}
+
 // Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -45,3 +50,30 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static async Task ApplyMigrationsAsync(WebApplication app)
+{
+    const int maxAttempts = 10;
+    
+    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymLogDbContext>();
+            
+            await dbContext.Database.MigrateAsync();
+            return;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            app.Logger.LogWarning(
+                ex,
+                "Database migration failed. Retrying in 5 seconds. Attempt {Attempt}/{MaxAttempts}",
+                attempt,
+                maxAttempts);
+            
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+    }
+}

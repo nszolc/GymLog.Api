@@ -23,6 +23,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+      - Database__ApplyMigrations=true
       - ConnectionStrings__DefaultConnection=Server=gymlog-db,1433;Database=GymLogDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False
     ports:
       - "8080:8080"
