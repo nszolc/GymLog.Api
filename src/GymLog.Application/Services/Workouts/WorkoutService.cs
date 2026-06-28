@@ -226,4 +226,49 @@ public class WorkoutService : IWorkoutService
             Notes = workoutSet.Notes
         };
     }
+
+    public async Task<IEnumerable<WorkoutSetDto>> GetSetsAsync(int workoutId, int workoutExerciseId)
+    {
+
+       var workoutExists = await _db.Workouts.AnyAsync(x => x.Id == workoutId);
+       var workoutExerciseExists = await _db.WorkoutExercises.AnyAsync(x => x.Id == workoutExerciseId && x.WorkoutId == workoutId);
+        
+       if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+       if (!workoutExerciseExists)
+           throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found");
+       var getsets =  _db.WorkoutSets
+           .AsNoTracking()
+           .Where(x => x.WorkoutExerciseId == workoutExerciseId)
+           .OrderBy(x => x.SetNumber);
+       
+            var sets = await getsets.Select(x => new WorkoutSetDto
+            {
+                Id = x.Id,
+                WorkoutExerciseId = x.WorkoutExerciseId,
+                SetNumber = x.SetNumber,
+                Reps = x.Reps,
+                WeightKg = x.WeightKg,
+                Notes = x.Notes
+            }).ToListAsync();
+            return sets;
+    }
+
+    public async Task RemoveSetAsync(int workoutId, int workoutExerciseId, int setId)
+    {
+        var workoutExists = await _db.Workouts.AnyAsync(x => x.Id == workoutId);
+        var workoutExerciseExists = await _db.WorkoutExercises.AnyAsync(x => x.Id == workoutExerciseId && x.WorkoutId == workoutId);
+        
+        if (!workoutExists) throw new NotFoundException($"Workout with id {workoutId} not found");
+        if (!workoutExerciseExists) throw new NotFoundException($"Workout exercise with id {workoutExerciseId} not found");
+
+        var workoutSet = await _db.WorkoutSets.FirstOrDefaultAsync(x =>
+            x.Id == setId &&
+            x.WorkoutExerciseId == workoutExerciseId);
+        
+        if (workoutSet == null)
+            throw new NotFoundException($"Workout set with id {setId} not found");
+        
+        _db.WorkoutSets.Remove(workoutSet);
+        await _db.SaveChangesAsync();
+    }
 }

@@ -85,4 +85,18 @@ public class WorkoutsController : ControllerBase
         var workoutSet = await _service.AddSetAsync(workoutId, workoutExerciseId, dto);
         return Ok(workoutSet);
     }
+    //GET /api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets
+    [HttpGet("{workoutId:int}/exercises/{workoutExerciseId:int}/sets")]
+    public async Task<ActionResult<IEnumerable<WorkoutSetDto>>> GetSets (int workoutId, int workoutExerciseId)
+    {
+        var sets = await _service.GetSetsAsync(workoutId, workoutExerciseId);
+        return Ok(sets);
+    }
+    //DELETE /api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets/{setId}
+    [HttpDelete("{workoutId:int}/exercises/{workoutExerciseId:int}/sets/{setId:int}")]
+    public async Task<IActionResult> DeleteSet(int workoutId, int workoutExerciseId, int setId)
+    {
+        await _service.RemoveSetAsync(workoutId, workoutExerciseId, setId);
+        return NoContent();
+    }
 }

@@ -15,4 +15,6 @@ public interface IWorkoutService
     Task<IEnumerable<WorkoutExerciseDto>> GetExercisesAsync(int workoutId);
     Task RemoveExerciseAsync(int workoutId, int workoutExerciseId);
     Task<WorkoutSetDto> AddSetAsync(int workoutId, int workoutExerciseId, AddWorkoutSetDto dto);
+    Task<IEnumerable<WorkoutSetDto>> GetSetsAsync(int workoutId, int workoutExerciseId);
+    Task RemoveSetAsync(int workoutId, int workoutExerciseId, int setId); 
 }
