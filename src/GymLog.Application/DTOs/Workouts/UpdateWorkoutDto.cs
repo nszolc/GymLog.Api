@@ -2,6 +2,7 @@
 
 public record UpdateWorkoutDto
 {
+    public string Name { get; init; } = string.Empty;
     public DateTime Date { get; init; }
     public string? Notes { get; init; }
 }

@@ -10,6 +10,7 @@ public static class WorkoutMappings
         return new WorkoutDto
         {
             Id = workout.Id,
+            Name = workout.Name,
             Date = workout.Date,
             Notes = workout.Notes
         };
@@ -19,6 +20,7 @@ public static class WorkoutMappings
     {
         return new Workout
         {
+            Name = dto.Name,
             Date = dto.Date,
             Notes = dto.Notes
         };
@@ -26,6 +28,7 @@ public static class WorkoutMappings
 
     public static void UpdateEntity(this UpdateWorkoutDto dto, Workout workout)
     {
+        workout.Name = dto.Name;
         workout.Date = dto.Date;
         workout.Notes = dto.Notes;
     }

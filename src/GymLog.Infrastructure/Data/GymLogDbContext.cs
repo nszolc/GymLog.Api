@@ -15,6 +15,13 @@ public class GymLogDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Workout>(Workout =>
+        {
+            Workout.Property(x => x.Name)
+                .HasMaxLength(100)
+                .IsRequired();
+        });
+
         modelBuilder.Entity<WorkoutExercise>(WorkoutExercise =>
         {
             WorkoutExercise.HasOne(x => x.Workout)
