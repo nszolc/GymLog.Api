@@ -1,32 +1,44 @@
-# GymLog API
+# GymLog
 
-> A REST API for tracking strength training workouts, built with .NET 9.
+> A REST API and lightweight web UI for tracking strength training workouts, built with .NET 9.
 
-GymLog API is built to practice modern .NET development. It's a REST API for managing gym exercises and workout sessions, with a lightweight HTML/Tailwind frontend for full CRUD on exercises. I built it to explore Clean Architecture, dependency injection, FluentValidation, and centralized error handling with custom exceptions and middleware.
+GymLog is a practice project for modern .NET development. It provides a REST API for managing gym exercises, workout sessions, workout exercises, and performed sets. The API is paired with a static HTML/Tailwind/vanilla JavaScript frontend served directly from `wwwroot`.
+
+The project explores Clean Architecture, dependency injection, Entity Framework Core, FluentValidation, centralized error handling, and Docker-based local development.
 
 ## Tech Stack
 
 - **.NET 9** - main framework
 - **ASP.NET Core** - REST API framework
 - **Entity Framework Core 9** - ORM
-- **Microsoft SQL Server** - database (via Docker)
+- **Microsoft SQL Server** - database
 - **FluentValidation 12** - input validation
 - **Swagger / OpenAPI** - API documentation
-- **Tailwind CSS v4** - frontend styling (browser build, no bundler)
-- **Vanilla JS frontend** - static HTML UI served from `wwwroot`
-- **Docker + Docker Compose** - containerization
+- **Tailwind CSS v4** - frontend styling through the browser build
+- **Vanilla JavaScript** - static frontend served from `wwwroot`
+- **Docker + Docker Compose** - local containerized setup
 - **Clean Architecture** - layered architecture pattern
 
 ## Architecture
 
-The project follows Clean Architecture principles, separating concerns into four layers. Dependencies flow inward - outer layers depend on inner ones, never the opposite.
+The solution is split into four layers. Dependencies flow inward: outer layers depend on inner layers, not the other way around.
 
-- **GymLog.Domain** - core business entities, enums, and custom exceptions. No external dependencies.
-- **GymLog.Application** - business logic, DTOs, validators, mappers, and application services.
-- **GymLog.Infrastructure** - data access layer with Entity Framework Core and database context.
-- **GymLog.API** - HTTP layer with controllers, middleware, and dependency injection setup.
+- **GymLog.Domain** - business entities, enums, and custom exceptions.
+- **GymLog.Application** - DTOs, validators, mappings, and application services.
+- **GymLog.Infrastructure** - Entity Framework Core database context and migrations.
+- **GymLog.API** - controllers, middleware, dependency injection, Swagger, and static frontend hosting.
 
-Error handling is centralized in a custom `ExceptionHandlingMiddleware` that catches domain exceptions and returns responses in [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807) format.
+Error handling is centralized in `ExceptionHandlingMiddleware`, which catches domain exceptions and returns API errors as Problem Details responses.
+
+## Features
+
+- Manage exercises: create, edit, delete, list, and search.
+- Manage workouts with names, dates, and notes.
+- Add exercises to workouts.
+- Add sets to workout exercises with reps, weight, set number, and notes.
+- Prevent deleting exercises that are already used in workouts.
+- Use a static frontend for the main exercise and workout flows.
+- Run the full app with SQL Server through Docker Compose.
 
 ## Getting Started
 
@@ -38,121 +50,136 @@ Error handling is centralized in a custom `ExceptionHandlingMiddleware` that cat
 ### Run with Docker
 
 ```bash
-git clone https://github.com/nszolc/GymLog.Api.git
-cd GymLog.Api
 docker compose up -d --build
 ```
 
-The API will be available at `http://localhost:8080/swagger`.
+The application will be available at:
 
-### Web UI
+- **Web UI:** `http://localhost:8080/`
+- **Swagger:** `http://localhost:8080/swagger`
 
-A static frontend is served from `wwwroot` and available at the application root:
+Docker Compose starts:
 
-- **`http://localhost:8080/`** - exercise catalog with create, edit, and delete
+- `gymlog-db` - SQL Server exposed on host port `1434`
+- `gymlog-api` - ASP.NET Core API exposed on host port `8080`
 
-It's a single `index.html` page styled with Tailwind CSS v4 (loaded via browser CDN) and vanilla JavaScript that talks to the same `/api/exercises` endpoints described below. No separate build step is required.
+The API container applies EF Core migrations automatically on startup when `Database__ApplyMigrations=true` is set in `docker-compose.yml`.
 
-### API Endpoints
+### Run Locally
 
-#### Exercises
+Start SQL Server locally or through Docker, then apply migrations:
+
+```bash
+dotnet ef database update --project src/GymLog.Infrastructure --startup-project src/GymLog.API
+```
+
+Run the API:
+
+```bash
+dotnet run --project src/GymLog.API
+```
+
+The local development profile uses:
+
+- **Web UI:** `http://localhost:5050/`
+- **Swagger:** `http://localhost:5050/swagger`
+
+The default local connection string points to:
+
+```text
+Server=localhost\SQLEXPRESS;Database=GymLogDb;Trusted_Connection=True;TrustServerCertificate=True
+```
+
+## Web UI
+
+The frontend is a single static page served from `src/GymLog.API/wwwroot`.
+
+It supports:
+
+- exercise list, search, create, edit, and delete
+- workout list, search, create, and edit
+- adding exercises to a workout
+- adding and removing sets inside a workout
+
+There is no separate frontend build step.
+
+## API Endpoints
+
+### Exercises
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/exercises` | Get all exercises |
 | GET | `/api/exercises/{id}` | Get exercise by ID |
-| POST | `/api/exercises` | Create new exercise |
+| POST | `/api/exercises` | Create exercise |
 | PUT | `/api/exercises/{id}` | Update exercise |
 | DELETE | `/api/exercises/{id}` | Delete exercise |
 
-#### Workouts
+### Workouts
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/workouts` | Get all workouts |
 | GET | `/api/workouts/{id}` | Get workout by ID |
-| POST | `/api/workouts` | Create new workout |
+| POST | `/api/workouts` | Create workout |
 | PUT | `/api/workouts/{id}` | Update workout |
 | DELETE | `/api/workouts/{id}` | Delete workout |
 
-## Recent Updates
+### Workout Exercises
 
-- Added `Workout` as a domain entity for training sessions.
-- Added full CRUD API support for workouts.
-- Added workout DTOs, mappings, application service, controller, and FluentValidation validators.
-- Added missing create validator for exercises so the API can start correctly with dependency injection validation enabled.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/workouts/{workoutId}/exercises` | Get exercises assigned to a workout |
+| POST | `/api/workouts/{workoutId}/exercises` | Add exercise to a workout |
+| DELETE | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}` | Remove exercise from a workout |
 
-## Future Features
+### Workout Sets
 
-The next development steps will focus on connecting workouts with exercises, tracking performed sets, and expanding the frontend beyond the exercise catalog.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets` | Get sets for a workout exercise |
+| POST | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets` | Add set to a workout exercise |
+| DELETE | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets/{setId}` | Remove set from a workout exercise |
 
-### 1. Database Migration for Workouts
+## Useful Commands
 
-Add and apply an EF Core migration for the `Workouts` table so the database schema matches the new workout API code.
-
-Planned command:
+Create a migration:
 
 ```bash
-dotnet ef migrations add AddWorkouts --project src/GymLog.Infrastructure --startup-project src/GymLog.API
+dotnet ef migrations add MigrationName --project src/GymLog.Infrastructure --startup-project src/GymLog.API
+```
+
+Apply migrations:
+
+```bash
 dotnet ef database update --project src/GymLog.Infrastructure --startup-project src/GymLog.API
 ```
 
-### 2. Exercises in Workouts
+Build the solution:
 
-Connect workouts with existing exercises, so one workout can contain multiple exercises.
+```bash
+dotnet build GymLog.sln
+```
 
-Planned endpoints:
+Start Docker containers:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/workouts/{workoutId}/exercises` | Add exercise to workout |
-| DELETE | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}` | Remove exercise from workout |
+```bash
+docker compose up -d --build
+```
 
-Initial model idea:
+Stop Docker containers:
 
-- `Id`
-- `WorkoutId`
-- `ExerciseId`
-- `Order`
-
-### 3. Workout Sets
-
-Track performed sets for each exercise inside a workout.
-
-Planned endpoints:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/workouts/{workoutId}/exercises/{workoutExerciseId}/sets` | Add set to workout exercise |
-| PUT | `/api/sets/{id}` | Update set |
-| DELETE | `/api/sets/{id}` | Delete set |
-
-Initial model idea:
-
-- `Id`
-- `WorkoutExerciseId`
-- `SetNumber`
-- `Reps`
-- `WeightKg`
-- `Notes`
-
-### 4. Workout Frontend
-
-Extend the static frontend from exercise management to workout tracking.
-
-Planned UI features:
-
-- List workouts by date.
-- Create and edit workout notes.
-- Add exercises to a workout.
-- Track sets, reps, and weight.
-
-### 5. Tests and Quality
-
-- Add integration tests for exercise and workout endpoints.
-- Add validation tests for DTO validators.
-- Add API smoke tests for Docker Compose startup.
+```bash
+docker compose down
+```
 
 ## Status
 
-Work in progress. Exercise CRUD and workout CRUD are implemented in the API. The current frontend supports exercise management; workout tracking UI and exercise/set tracking are planned next.
+Work in progress. Exercise management, workout management, workout exercises, workout sets, Docker Compose startup, and the basic web UI are implemented.
+
+Next likely improvements:
+
+- editing existing workout sets
+- integration tests for API endpoints
+- seed data for local development
+- stronger frontend validation and loading states
