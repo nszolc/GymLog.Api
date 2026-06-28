@@ -109,6 +109,12 @@ public class ExerciseService: IExerciseService
     
         if (exercise is null)
             throw new NotFoundException($"Exercise with id '{id}' was not found.");
+
+        var isUsedInWorkout = await _db.WorkoutExercises
+            .AnyAsync(x => x.ExerciseId == id);
+
+        if (isUsedInWorkout)
+            throw new ConflictException($"Exercise with id '{id}' is used in a workout and cannot be deleted.");
     
         _db.Exercises.Remove(exercise);
         await _db.SaveChangesAsync();
