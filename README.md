@@ -14,6 +14,8 @@ The project explores Clean Architecture, dependency injection, Entity Framework 
 - **Microsoft SQL Server** - database
 - **FluentValidation 12** - input validation
 - **Swagger / OpenAPI** - API documentation
+- **xUnit + FluentAssertions** - automated tests
+- **EF Core InMemory** - in-memory database provider for application service tests
 - **Tailwind CSS v4** - frontend styling through the browser build
 - **Vanilla JavaScript** - static frontend served from `wwwroot`
 - **Docker + Docker Compose** - local containerized setup
@@ -103,6 +105,84 @@ It supports:
 
 There is no separate frontend build step.
 
+## Tests
+
+The solution has a separate `tests` directory for automated tests:
+
+```text
+tests/
+  GymLog.Application.Tests/
+```
+
+The current test project uses:
+
+- **xUnit** as the test framework
+- **FluentAssertions** for readable assertions
+- **Microsoft.EntityFrameworkCore.InMemory** for testing application services without SQL Server
+- **coverlet.collector** for future code coverage collection
+
+Run all tests:
+
+```bash
+dotnet test
+```
+
+### Current Test Coverage
+
+`GymLog.Application.Tests` currently contains application-level tests for validators and workout service behavior.
+
+Validator tests:
+
+- `CreateExerciseDtoValidatorTests`
+  - accepts a valid exercise DTO
+  - rejects a too-short exercise name
+  - rejects invalid enum values for muscle group and exercise type
+- `AddWorkoutSetDtoValidatorTests`
+  - accepts a valid workout set DTO
+  - rejects zero reps
+  - rejects negative weight
+
+Workout service tests:
+
+- `CreateAsync` creates a workout when the DTO is valid
+- `CreateAsync` throws `ValidationException` when the DTO is invalid
+- `GetByIdAsync` returns an existing workout
+- `GetByIdAsync` throws `NotFoundException` when the workout does not exist
+- `UpdateAsync` updates an existing workout
+- `DeleteAsync` removes an existing workout
+- `AddExerciseAsync` adds an exercise to a workout and assigns the first order number
+- `AddSetAsync` adds the next set and calculates the next `SetNumber`
+
+Each `WorkoutServiceTests` test creates its own in-memory database using a unique database name, so tests do not share state. The service is created with the real validators used by the application.
+
+`ExerciseServiceTests` exists as the next place for service tests, but it does not contain real test cases yet.
+
+### Planned Test Coverage
+
+Next application service tests:
+
+- `ExerciseService`
+  - creating an exercise
+  - rejecting invalid exercise data
+  - returning an exercise by ID
+  - throwing `NotFoundException` for missing exercises
+  - updating and deleting exercises
+  - throwing `ConflictException` when deleting an exercise that is already used in a workout
+- `WorkoutService`
+  - `AddExerciseAsync` should throw `NotFoundException` when workout or exercise does not exist
+  - `AddExerciseAsync` should throw `ConflictException` when the same exercise is added twice
+  - `GetExercisesAsync` should return workout exercises ordered by `Order`
+  - `RemoveExerciseAsync` should remove an exercise from a workout
+  - `AddSetAsync` should reject invalid set data
+  - `GetSetsAsync` should return sets ordered by `SetNumber`
+  - `RemoveSetAsync` should remove a set from a workout exercise
+
+Future test projects to add:
+
+- `GymLog.Domain.Tests` for pure domain rules, entities, enums, and exceptions
+- `GymLog.Infrastructure.Tests` for EF Core configuration and database-specific behavior
+- `GymLog.API.IntegrationTests` for controller endpoints, HTTP status codes, validation errors, and middleware behavior
+
 ## API Endpoints
 
 ### Exercises
@@ -180,6 +260,7 @@ Work in progress. Exercise management, workout management, workout exercises, wo
 Next likely improvements:
 
 - editing existing workout sets
+- more application service tests
 - integration tests for API endpoints
 - seed data for local development
 - stronger frontend validation and loading states
