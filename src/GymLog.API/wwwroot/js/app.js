@@ -21,18 +21,18 @@ const EXERCISE_TYPES = {
     2: "Izolowane",
 };
 
-const TD = "border-b border-zinc-200 px-3 py-2.5 text-left align-middle text-zinc-700";
-const TAG = "inline-block rounded-full border border-cyan-100 bg-cyan-100 px-2 py-0.5 text-xs font-medium text-zinc-800";
+const TD = "border-b border-line px-3 py-2.5 text-left align-middle text-fg";
+const TAG = "inline-block rounded-full border border-brand/30 bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand";
 const BTN_SM = "inline-flex cursor-pointer items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors";
-const BTN_GHOST = `${BTN_SM} border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50`;
-const BTN_DANGER = `${BTN_SM} border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100`;
+const BTN_GHOST = `${BTN_SM} border border-line bg-surface-2 text-fg hover:bg-surface`;
+const BTN_DANGER = `${BTN_SM} border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20`;
 const STATUS_BASE = "mb-3 rounded-lg px-3.5 py-2.5 text-sm";
 const STATUS_VARIANTS = {
-    error: "border border-orange-200 bg-orange-50 text-orange-800",
-    success: "border border-lime-200 bg-lime-50 text-lime-800",
+    error: "border border-rose-500/30 bg-rose-500/10 text-rose-200",
+    success: "border border-brand/30 bg-brand/10 text-brand",
 };
-const NAV_ACTIVE = "bg-zinc-950 text-white shadow-sm";
-const NAV_IDLE = "bg-transparent text-zinc-700 hover:bg-white";
+const NAV_ACTIVE = "bg-white text-ink shadow-sm";
+const NAV_IDLE = "bg-transparent text-fg hover:bg-white/10";
 const ICON_X = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 shrink-0" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 const ICON_ARROW_LEFT = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 shrink-0" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>';
 
@@ -85,11 +85,18 @@ const workoutExerciseForm = document.getElementById("workout-exercise-form");
 const workoutExerciseSelect = document.getElementById("workout-exercise-select");
 const workoutExerciseList = document.getElementById("workout-exercise-list");
 const workoutExerciseEmptyState = document.getElementById("workout-exercise-empty-state");
+const workoutDraftPanel = document.getElementById("workout-draft-panel");
+const workoutDraftExerciseSelect = document.getElementById("workout-draft-exercise-select");
+const addWorkoutDraftExerciseBtn = document.getElementById("add-workout-draft-exercise-btn");
+const workoutDraftExerciseList = document.getElementById("workout-draft-exercise-list");
+const workoutDraftEmptyState = document.getElementById("workout-draft-empty-state");
 
 let selectedWorkout = null;
 let exerciseOptions = [];
 let exercisesCache = [];
 let workoutsCache = [];
+let workoutDraftExercises = [];
+let workoutDraftExerciseSeq = 1;
 
 function setupNavButton(button) {
     button.className = `nav-btn rounded-full px-4 py-2 text-sm font-semibold transition-colors ${NAV_IDLE}`;
@@ -212,7 +219,7 @@ function renderExercises(exercises) {
 
     for (const ex of exercises) {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-cyan-50/70";
+        tr.className = "hover:bg-brand/10";
         tr.innerHTML = `
             <td class="${TD}">${ex.id}</td>
             <td class="${TD}">${escapeHtml(ex.name)}</td>
@@ -346,13 +353,31 @@ async function loadExerciseOptions() {
     const res = await fetch(EXERCISES_API_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     exerciseOptions = await res.json();
-    workoutExerciseSelect.innerHTML = "";
+    fillExerciseOptionsSelect(workoutExerciseSelect);
+    fillExerciseOptionsSelect(workoutDraftExerciseSelect);
+
+    const hasExercises = exerciseOptions.length > 0;
+    addWorkoutDraftExerciseBtn.disabled = !hasExercises;
+    workoutExerciseSelect.disabled = !hasExercises;
+    workoutDraftExerciseSelect.disabled = !hasExercises;
+}
+
+function fillExerciseOptionsSelect(select) {
+    select.innerHTML = "";
+
+    if (!exerciseOptions.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Brak dostępnych ćwiczeń";
+        select.appendChild(option);
+        return;
+    }
 
     for (const exercise of exerciseOptions) {
         const option = document.createElement("option");
         option.value = exercise.id;
         option.textContent = exercise.name;
-        workoutExerciseSelect.appendChild(option);
+        select.appendChild(option);
     }
 }
 
@@ -369,7 +394,7 @@ function renderWorkouts(workouts) {
 
     for (const workout of workouts) {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-cyan-50/70";
+        tr.className = "hover:bg-brand/10";
         tr.innerHTML = `
             <td class="${TD}">${workout.id}</td>
             <td class="${TD}">${escapeHtml(workout.name || "-")}</td>
@@ -457,7 +482,7 @@ async function renderWorkoutExercises(workoutExercises) {
     for (const workoutExercise of workoutExercises) {
         const sets = await loadWorkoutSets(workoutExercise.id);
         const card = document.createElement("article");
-        card.className = "rounded-lg border border-zinc-200 bg-white p-4 shadow-sm";
+        card.className = "rounded-lg border border-line bg-surface p-4 shadow-sm";
         card.innerHTML = `
             <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -466,26 +491,26 @@ async function renderWorkoutExercises(workoutExercises) {
                 </div>
             </div>
 
-            <h4 class="mb-2 text-sm font-semibold uppercase text-zinc-500">Serie</h4>
-            <form class="set-form mb-4 grid gap-3 rounded-lg border border-orange-100 bg-orange-50/60 p-4 sm:grid-cols-[90px_110px_1fr_auto]" data-workout-exercise-id="${workoutExercise.id}" novalidate>
+            <h4 class="mb-2 text-sm font-semibold uppercase text-muted">Sety</h4>
+            <form class="set-form mb-4 grid gap-3 rounded-lg border border-line bg-surface-2 p-4 sm:grid-cols-[90px_110px_1fr_auto]" data-workout-exercise-id="${workoutExercise.id}" novalidate>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-medium text-zinc-600">Powt.</label>
+                    <label class="text-sm font-medium text-muted">Powt.</label>
                     <input type="number" name="reps" min="1" required
-                           class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-medium text-zinc-600">Kg</label>
+                    <label class="text-sm font-medium text-muted">Kg</label>
                     <input type="number" name="weightKg" min="0" step="0.01"
-                           class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-medium text-zinc-600">Notatki</label>
+                    <label class="text-sm font-medium text-muted">Notatki</label>
                     <input type="text" name="notes" maxlength="500"
-                           class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                 </div>
                 <div class="flex items-end">
                     <button type="submit"
-                            class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 sm:w-auto">Dodaj serię</button>
+                            class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white sm:w-auto">Dodaj set</button>
                 </div>
             </form>
         `;
@@ -517,21 +542,21 @@ function renderSetsInto(container, workoutExercise, sets) {
     container.innerHTML = "";
     if (!sets.length) {
         const empty = document.createElement("p");
-        empty.className = "rounded-lg border border-dashed border-zinc-200 p-3 text-sm text-zinc-500";
-        empty.textContent = "Brak serii dla tego ćwiczenia.";
+        empty.className = "rounded-lg border border-dashed border-line p-3 text-sm text-muted";
+        empty.textContent = "Brak setów dla tego ćwiczenia.";
         container.appendChild(empty);
         return;
     }
 
     for (const set of sets) {
         const row = document.createElement("div");
-        row.className = "flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between";
+        row.className = "flex flex-col gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between";
         row.innerHTML = `
             <div class="flex flex-wrap items-center gap-2 text-sm">
                 <span class="${TAG}">Seria ${set.setNumber}</span>
-                <span class="font-semibold text-zinc-800">${set.reps} powt.</span>
-                <span class="text-zinc-600">${set.weightKg == null ? "bez kg" : `${set.weightKg} kg`}</span>
-                <span class="text-zinc-500">${escapeHtml(set.notes || "")}</span>
+                <span class="font-semibold text-fg">${set.reps} powt.</span>
+                <span class="text-muted">${set.weightKg == null ? "bez kg" : `${set.weightKg} kg`}</span>
+                <span class="text-muted">${escapeHtml(set.notes || "")}</span>
             </div>
         `;
 
@@ -541,6 +566,183 @@ function renderSetsInto(container, workoutExercise, sets) {
         deleteBtn.addEventListener("click", () => deleteWorkoutSet(workoutExercise, set));
         row.appendChild(deleteBtn);
         container.appendChild(row);
+    }
+}
+
+function resetWorkoutDraft() {
+    workoutDraftExercises = [];
+    workoutDraftExerciseSeq = 1;
+    renderWorkoutDraftExercises();
+}
+
+function addWorkoutDraftExercise() {
+    clearStatus(workoutStatusBox);
+
+    const exerciseId = parseInt(workoutDraftExerciseSelect.value, 10);
+    if (!exerciseId) {
+        showStatus(workoutStatusBox, "Najpierw dodaj ćwiczenie w zakładce Ćwiczenia.", "error");
+        return;
+    }
+
+    if (workoutDraftExercises.some((item) => item.exerciseId === exerciseId)) {
+        showStatus(workoutStatusBox, "To ćwiczenie jest już dodane do tego treningu.", "error");
+        return;
+    }
+
+    const exercise = exerciseOptions.find((item) => item.id === exerciseId);
+    workoutDraftExercises.push({
+        draftId: workoutDraftExerciseSeq++,
+        exerciseId,
+        exerciseName: exercise?.name || `Ćwiczenie #${exerciseId}`,
+        sets: [],
+    });
+    renderWorkoutDraftExercises();
+}
+
+function renderWorkoutDraftExercises() {
+    workoutDraftExerciseList.innerHTML = "";
+    workoutDraftEmptyState.hidden = workoutDraftExercises.length > 0;
+
+    for (const draftExercise of workoutDraftExercises) {
+        const card = document.createElement("article");
+        card.className = "rounded-lg border border-line bg-surface p-4 shadow-sm";
+        card.innerHTML = `
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <div class="mb-2"><span class="${TAG}">#${workoutDraftExercises.indexOf(draftExercise) + 1}</span></div>
+                    <h4 class="text-lg font-semibold">${escapeHtml(draftExercise.exerciseName)}</h4>
+                </div>
+            </div>
+
+            <h5 class="mb-2 text-sm font-semibold uppercase text-muted">Sety</h5>
+            <form class="draft-set-form mb-4 grid gap-3 rounded-lg border border-line bg-surface-2 p-4 sm:grid-cols-[90px_110px_1fr_auto]" data-draft-id="${draftExercise.draftId}" novalidate>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-muted">Powt.</label>
+                    <input type="number" name="reps" min="1" required
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-muted">Kg</label>
+                    <input type="number" name="weightKg" min="0" step="0.01"
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-muted">Notatki</label>
+                    <input type="text" name="notes" maxlength="500"
+                           class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white sm:w-auto">Dodaj set</button>
+                </div>
+            </form>
+        `;
+
+        const header = card.querySelector("div");
+        const removeExerciseBtn = document.createElement("button");
+        removeExerciseBtn.className = BTN_DANGER;
+        removeExerciseBtn.textContent = "Usuń ćwiczenie";
+        removeExerciseBtn.addEventListener("click", () => {
+            workoutDraftExercises = workoutDraftExercises.filter((item) => item.draftId !== draftExercise.draftId);
+            renderWorkoutDraftExercises();
+        });
+        header.appendChild(removeExerciseBtn);
+
+        const setsWrap = document.createElement("div");
+        setsWrap.className = "grid gap-2";
+        renderDraftSetsInto(setsWrap, draftExercise);
+
+        card.appendChild(setsWrap);
+        workoutDraftExerciseList.appendChild(card);
+    }
+}
+
+function renderDraftSetsInto(container, draftExercise) {
+    container.innerHTML = "";
+    if (!draftExercise.sets.length) {
+        const empty = document.createElement("p");
+        empty.className = "rounded-lg border border-dashed border-line p-3 text-sm text-muted";
+        empty.textContent = "Brak setów dla tego ćwiczenia.";
+        container.appendChild(empty);
+        return;
+    }
+
+    draftExercise.sets.forEach((set, index) => {
+        const row = document.createElement("div");
+        row.className = "flex flex-col gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between";
+        row.innerHTML = `
+            <div class="flex flex-wrap items-center gap-2 text-sm">
+                <span class="${TAG}">Seria ${index + 1}</span>
+                <span class="font-semibold text-fg">${set.reps} powt.</span>
+                <span class="text-muted">${set.weightKg == null ? "bez kg" : `${set.weightKg} kg`}</span>
+                <span class="text-muted">${escapeHtml(set.notes || "")}</span>
+            </div>
+        `;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = BTN_DANGER;
+        deleteBtn.textContent = "Usuń serię";
+        deleteBtn.addEventListener("click", () => {
+            draftExercise.sets.splice(index, 1);
+            renderWorkoutDraftExercises();
+        });
+        row.appendChild(deleteBtn);
+        container.appendChild(row);
+    });
+}
+
+function addDraftSet(form) {
+    clearStatus(workoutStatusBox);
+
+    const draftId = parseInt(form.dataset.draftId, 10);
+    const draftExercise = workoutDraftExercises.find((item) => item.draftId === draftId);
+    if (!draftExercise) return;
+
+    const formData = new FormData(form);
+    const reps = parseInt(formData.get("reps"), 10);
+    const weightValue = formData.get("weightKg");
+    const weightKg = weightValue === "" ? null : parseFloat(weightValue);
+    const notes = String(formData.get("notes") || "").trim();
+
+    if (!Number.isInteger(reps) || reps <= 0) {
+        showStatus(workoutStatusBox, "Liczba powtórzeń musi być większa od 0.", "error");
+        return;
+    }
+
+    if (weightKg !== null && (Number.isNaN(weightKg) || weightKg < 0)) {
+        showStatus(workoutStatusBox, "Ciężar nie może być ujemny.", "error");
+        return;
+    }
+
+    draftExercise.sets.push({
+        reps,
+        weightKg,
+        notes: notes || null,
+    });
+    form.reset();
+    renderWorkoutDraftExercises();
+}
+
+async function saveWorkoutDraft(workoutId) {
+    for (const draftExercise of workoutDraftExercises) {
+        const exerciseRes = await fetch(`${WORKOUTS_API_URL}/${workoutId}/exercises`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ exerciseId: draftExercise.exerciseId }),
+        });
+
+        if (!exerciseRes.ok) throw new Error(await getErrorMessage(exerciseRes));
+        const workoutExercise = await exerciseRes.json();
+
+        for (const set of draftExercise.sets) {
+            const setRes = await fetch(`${WORKOUTS_API_URL}/${workoutId}/exercises/${workoutExercise.id}/sets`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(set),
+            });
+
+            if (!setRes.ok) throw new Error(await getErrorMessage(setRes));
+        }
     }
 }
 
@@ -569,6 +771,11 @@ workoutForm.addEventListener("submit", async (e) => {
         const savedWorkout = isEdit
             ? { id: parseInt(id, 10), ...payload }
             : await res.json();
+
+        if (!isEdit) {
+            await saveWorkoutDraft(savedWorkout.id);
+            resetWorkoutDraft();
+        }
 
         showStatus(workoutStatusBox, isEdit ? "Zaktualizowano trening." : "Dodano trening.", "success");
         await openWorkout(savedWorkout);
@@ -684,6 +891,7 @@ function fillWorkoutForm(workout) {
     workoutSubmitBtn.textContent = "Zapisz zmiany";
     setButtonContent(workoutCancelBtn, "Wróć do listy", ICON_ARROW_LEFT);
     workoutCancelBtn.hidden = false;
+    workoutDraftPanel.hidden = true;
 }
 
 function resetWorkoutForm() {
@@ -696,6 +904,8 @@ function resetWorkoutForm() {
     workoutSubmitBtn.textContent = "Dodaj";
     setButtonContent(workoutCancelBtn, "Anuluj", ICON_X);
     workoutCancelBtn.hidden = true;
+    workoutDraftPanel.hidden = false;
+    resetWorkoutDraft();
 }
 
 async function deleteWorkout(id) {
@@ -754,11 +964,23 @@ workoutCancelBtn.addEventListener("click", () => {
     resetWorkoutForm();
     showView("workouts");
 });
-addWorkoutBtn.addEventListener("click", () => {
+addWorkoutBtn.addEventListener("click", async () => {
     resetWorkoutForm();
     setButtonContent(workoutCancelBtn, "Anuluj", ICON_X);
     workoutCancelBtn.hidden = false;
     showView("workout-form");
+    try {
+        await loadExerciseOptions();
+    } catch (err) {
+        showStatus(workoutStatusBox, `Nie udało się wczytać ćwiczeń: ${err.message}`, "error");
+    }
+});
+addWorkoutDraftExerciseBtn.addEventListener("click", addWorkoutDraftExercise);
+workoutDraftExerciseList.addEventListener("submit", (e) => {
+    const form = e.target.closest(".draft-set-form");
+    if (!form) return;
+    e.preventDefault();
+    addDraftSet(form);
 });
 workoutRefreshBtn.addEventListener("click", loadWorkouts);
 workoutSearchInput.addEventListener("input", () => renderWorkouts(getFilteredWorkouts()));

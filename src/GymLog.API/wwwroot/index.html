@@ -5,20 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GymLog</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-canvas: #09090B;
+            --color-surface: #18181B;
+            --color-surface-2: #27272A;
+            --color-line: #3F3F46;
+            --color-fg: #F4F4F5;
+            --color-muted: #A1A1AA;
+            --color-ink: #09090B;
+            --color-brand: #FF5F1F;
+            --color-brand-dark: #D94A12;
+            --color-brand-soft: #24120C;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-[#dce8f1] font-sans text-zinc-950">
+<body class="min-h-screen bg-canvas font-sans text-fg">
     <header class="sticky top-0 z-10 px-4 pt-4">
-        <div class="mx-auto flex max-w-[62rem] flex-col gap-4 rounded-lg border border-white bg-white/95 px-5 py-4 shadow-md shadow-slate-400/20 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div class="mx-auto flex max-w-[62rem] flex-col gap-4 rounded-lg border border-line bg-surface px-5 py-4 shadow-xl shadow-black/40 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <button type="button" id="home-logo-btn" class="inline-flex cursor-pointer items-center gap-3 text-left text-3xl font-bold tracking-normal" aria-label="Wróć do strony głównej">
-                    <span class="grid h-20 w-20 place-items-center rounded-full bg-[#FF5F1F] text-white shadow-sm">
+                    <span class="grid h-20 w-20 place-items-center rounded-full bg-brand text-ink shadow-[0_0_24px_rgba(255,95,31,0.55)]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="h-11 w-11 shrink-0" aria-hidden="true"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.866-4 7-9 7-4.077 0-8.153-.82-10.371-2.462-.426-.316-.631-.832-.62-1.362C2.118 12.723 2.627 2 10 2a3 3 0 0 1 3 3 2 2 0 0 1-2 2c-1.105 0-1.64-.444-2-1"/><path d="M15 14a5 5 0 0 0-7.584 2"/><path d="M9.964 6.825C8.019 7.977 9.5 13 8 15"/></svg>
                     </span>
                     <span>GymLog</span>
                 </button>
             </div>
 
-            <nav class="flex flex-wrap gap-2 rounded-full border border-white bg-white/95 p-1 shadow-md shadow-slate-400/20" aria-label="Nawigacja">
+            <nav class="flex flex-wrap gap-2 rounded-full border border-line bg-canvas p-1 shadow-inner shadow-black/60" aria-label="Nawigacja">
                 <button type="button" class="nav-btn" data-view="exercises">Ćwiczenia</button>
                 <button type="button" class="nav-btn" data-view="workouts">Treningi</button>
             </nav>
@@ -29,66 +43,66 @@
         <section id="exercises-view" class="view grid gap-5">
             <div id="status" class="mb-3 rounded-lg px-3.5 py-2.5 text-sm" hidden></div>
 
-            <section id="exercise-form-panel" class="rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm">
+            <section id="exercise-form-panel" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
                 <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold leading-none">
-                    <svg id="form-title-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-[#FF5F1F]" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <svg id="form-title-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-brand" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     <span id="form-title-text" class="leading-none">Dodaj ćwiczenie</span>
                 </h2>
                 <form id="exercise-form" novalidate>
                     <input type="hidden" id="exercise-id">
 
                     <div class="mb-3.5 flex flex-col gap-1.5">
-                        <label for="name" class="text-sm font-medium text-zinc-600">Nazwa *</label>
+                        <label for="name" class="text-sm font-medium text-muted">Nazwa *</label>
                         <input type="text" id="name" required maxlength="100" placeholder="np. Wyciskanie sztangi"
-                               class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                               class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                     </div>
 
                     <div class="mb-3.5 flex flex-col gap-1.5">
-                        <label for="description" class="text-sm font-medium text-zinc-600">Opis</label>
+                        <label for="description" class="text-sm font-medium text-muted">Opis</label>
                         <textarea id="description" rows="2" maxlength="500" placeholder="Opcjonalny opis"
-                                  class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"></textarea>
+                                  class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></textarea>
                     </div>
 
                     <div class="flex flex-wrap gap-3.5">
                         <div class="mb-3.5 flex flex-1 basis-48 flex-col gap-1.5">
-                            <label for="muscleGroup" class="text-sm font-medium text-zinc-600">Grupa mięśniowa *</label>
+                            <label for="muscleGroup" class="text-sm font-medium text-muted">Grupa mięśniowa *</label>
                             <select id="muscleGroup" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"></select>
+                                    class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></select>
                         </div>
 
                         <div class="mb-3.5 flex flex-1 basis-48 flex-col gap-1.5">
-                            <label for="exerciseType" class="text-sm font-medium text-zinc-600">Typ *</label>
+                            <label for="exerciseType" class="text-sm font-medium text-muted">Typ *</label>
                             <select id="exerciseType" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"></select>
+                                    class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></select>
                         </div>
                     </div>
 
                     <div class="mt-1.5 flex gap-2.5">
                         <button type="submit" id="submit-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800">Dodaj</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white">Dodaj</button>
                         <button type="button" id="cancel-btn" hidden
-                                class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Anuluj</button>
+                                class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-surface-2 px-5 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-surface">Anuluj</button>
                     </div>
                 </form>
             </section>
 
-            <section id="exercise-list-panel" class="rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm">
+            <section id="exercise-list-panel" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
                 <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="text-lg font-semibold">Lista ćwiczeń</h2>
                     <div class="flex flex-wrap gap-2">
                         <button type="button" id="add-exercise-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800">Dodaj ćwiczenie</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand px-4 py-2 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white">Dodaj ćwiczenie</button>
                         <button type="button" id="refresh-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Odśwież</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full border border-line bg-surface-2 px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">Odśwież</button>
                     </div>
                 </div>
 
                 <div class="mb-3 flex flex-col gap-1.5">
-                    <label for="exercise-search" class="text-sm font-medium text-zinc-600">Szukaj</label>
+                    <label for="exercise-search" class="text-sm font-medium text-muted">Szukaj</label>
                     <div class="relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-400" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
                         <input type="search" id="exercise-search" placeholder="Nazwa, opis, grupa albo typ"
-                               class="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-3 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                               class="w-full rounded-lg border border-line bg-surface-2 py-2.5 pl-10 pr-3 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                     </div>
                 </div>
 
@@ -96,74 +110,92 @@
                     <table class="w-full border-collapse text-sm">
                         <thead>
                             <tr>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">#</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Nazwa</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Opis</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Grupa</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Typ</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Własne</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500"></th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">#</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Nazwa</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Opis</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Grupa</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Typ</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Własne</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted"></th>
                             </tr>
                         </thead>
                         <tbody id="exercise-tbody"></tbody>
                     </table>
                 </div>
-                <p id="empty-state" class="p-5 text-center text-zinc-500" hidden>Brak ćwiczeń. Dodaj pierwsze powyżej.</p>
+                <p id="empty-state" class="p-5 text-center text-muted" hidden>Brak ćwiczeń. Dodaj pierwsze powyżej.</p>
             </section>
         </section>
 
         <section id="workouts-view" class="view grid gap-5" hidden>
             <div id="workout-status" class="mb-3 rounded-lg px-3.5 py-2.5 text-sm" hidden></div>
 
-            <section id="workout-form-panel" class="rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm">
+            <section id="workout-form-panel" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
                 <h2 id="workout-form-title" class="mb-4 text-lg font-semibold leading-none">Dodaj trening</h2>
                 <form id="workout-form" novalidate>
                     <input type="hidden" id="workout-id">
 
                     <div class="mb-3.5 flex flex-col gap-1.5">
-                        <label for="workout-name" class="text-sm font-medium text-zinc-600">Nazwa *</label>
+                        <label for="workout-name" class="text-sm font-medium text-muted">Nazwa *</label>
                         <input type="text" id="workout-name" required maxlength="100" placeholder="np. Push day"
-                               class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                               class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                     </div>
 
                     <div class="mb-3.5 flex flex-col gap-1.5">
-                        <label for="workout-date" class="text-sm font-medium text-zinc-600">Data *</label>
+                        <label for="workout-date" class="text-sm font-medium text-muted">Data *</label>
                         <input type="date" id="workout-date" required
-                               class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                               class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                     </div>
 
                     <div class="mb-3.5 flex flex-col gap-1.5">
-                        <label for="workout-notes" class="text-sm font-medium text-zinc-600">Notatki</label>
+                        <label for="workout-notes" class="text-sm font-medium text-muted">Notatki</label>
                         <textarea id="workout-notes" rows="3" maxlength="500" placeholder="Opcjonalne notatki z treningu"
-                                  class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"></textarea>
+                                  class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></textarea>
                     </div>
 
                     <div class="mt-1.5 flex gap-2.5">
                         <button type="submit" id="workout-submit-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800">Dodaj</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white">Dodaj</button>
                         <button type="button" id="workout-cancel-btn" hidden
-                                class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Anuluj</button>
+                                class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-surface-2 px-5 py-2.5 text-sm font-semibold text-fg transition-colors hover:bg-surface">Anuluj</button>
                     </div>
                 </form>
+
+                <section id="workout-draft-panel" class="mt-5 border-t border-line pt-5">
+                    <h3 class="mb-3 text-base font-semibold">Ćwiczenia i sety w treningu</h3>
+                    <div class="mb-4 grid gap-3 rounded-lg border border-brand/25 bg-brand-soft p-4 sm:grid-cols-[1fr_auto]">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="workout-draft-exercise-select" class="text-sm font-medium text-muted">Ćwiczenie</label>
+                            <select id="workout-draft-exercise-select"
+                                    class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" id="add-workout-draft-exercise-btn"
+                                    class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">Dodaj ćwiczenie</button>
+                        </div>
+                    </div>
+
+                    <div id="workout-draft-exercise-list" class="grid gap-4"></div>
+                    <p id="workout-draft-empty-state" class="rounded-lg border border-dashed border-line p-4 text-center text-sm text-muted">Brak ćwiczeń i setów w tym treningu.</p>
+                </section>
             </section>
 
-            <section id="workout-list-panel" class="rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm">
+            <section id="workout-list-panel" class="rounded-lg border border-line bg-surface p-5 shadow-sm">
                 <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <h2 class="text-lg font-semibold">Lista treningów</h2>
                     <div class="flex flex-wrap gap-2">
                         <button type="button" id="add-workout-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800">Dodaj trening</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full bg-brand px-4 py-2 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white">Dodaj trening</button>
                         <button type="button" id="workout-refresh-btn"
-                                class="inline-flex cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Odśwież</button>
+                                class="inline-flex cursor-pointer items-center justify-center rounded-full border border-line bg-surface-2 px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">Odśwież</button>
                     </div>
                 </div>
 
                 <div class="mb-3 flex flex-col gap-1.5">
-                    <label for="workout-search" class="text-sm font-medium text-zinc-600">Szukaj</label>
+                    <label for="workout-search" class="text-sm font-medium text-muted">Szukaj</label>
                     <div class="relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-zinc-400" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
                         <input type="search" id="workout-search" placeholder="Nazwa, data albo notatki"
-                               class="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-10 pr-3 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100">
+                               class="w-full rounded-lg border border-line bg-surface-2 py-2.5 pl-10 pr-3 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30">
                     </div>
                 </div>
 
@@ -171,49 +203,49 @@
                     <table class="w-full border-collapse text-sm">
                         <thead>
                             <tr>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">#</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Nazwa</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Data</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500">Notatki</th>
-                                <th class="border-b border-zinc-200 px-3 py-2.5 text-left text-xs font-semibold uppercase text-zinc-500"></th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">#</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Nazwa</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Data</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted">Notatki</th>
+                                <th class="border-b border-line px-3 py-2.5 text-left text-xs font-semibold uppercase text-muted"></th>
                             </tr>
                         </thead>
                         <tbody id="workout-tbody"></tbody>
                     </table>
                 </div>
-                <p id="workout-empty-state" class="p-5 text-center text-zinc-500" hidden>Brak treningów. Dodaj pierwszy powyżej.</p>
+                <p id="workout-empty-state" class="p-5 text-center text-muted" hidden>Brak treningów. Dodaj pierwszy powyżej.</p>
             </section>
 
-            <section id="workout-detail-panel" class="rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm" hidden>
+            <section id="workout-detail-panel" class="rounded-lg border border-line bg-surface p-5 shadow-sm" hidden>
                 <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <button type="button" id="workout-back-btn"
-                                class="mb-3 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Wróć</button>
+                                class="mb-3 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-line bg-surface-2 px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">Wróć</button>
                         <h2 id="workout-detail-title" class="text-xl font-semibold">Trening</h2>
-                        <p id="workout-detail-notes" class="mt-1 text-sm text-zinc-600"></p>
+                        <p id="workout-detail-notes" class="mt-1 text-sm text-muted"></p>
                     </div>
                     <button type="button" id="workout-detail-refresh-btn"
-                            class="inline-flex cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50">Odśwież</button>
+                            class="inline-flex cursor-pointer items-center justify-center rounded-full border border-line bg-surface-2 px-4 py-2 text-sm font-semibold text-fg transition-colors hover:bg-surface">Odśwież</button>
                 </div>
 
-                <form id="workout-exercise-form" class="mb-5 grid gap-3 rounded-lg border border-cyan-100 bg-cyan-50/60 p-4 sm:grid-cols-[1fr_auto]" novalidate>
+                <form id="workout-exercise-form" class="mb-5 grid gap-3 rounded-lg border border-brand/25 bg-brand-soft p-4 sm:grid-cols-[1fr_auto]" novalidate>
                     <div class="flex flex-col gap-1.5">
-                        <label for="workout-exercise-select" class="text-sm font-medium text-zinc-600">Ćwiczenie</label>
+                        <label for="workout-exercise-select" class="text-sm font-medium text-muted">Ćwiczenie</label>
                         <select id="workout-exercise-select" required
-                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 shadow-inner shadow-zinc-100 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"></select>
+                                class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"></select>
                     </div>
                     <div class="flex items-end">
                         <button type="submit"
-                                class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 sm:w-auto">Dodaj do treningu</button>
+                                class="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-brand-dark hover:text-white sm:w-auto">Dodaj do treningu</button>
                     </div>
                 </form>
 
                 <div id="workout-exercise-list" class="grid gap-4"></div>
-                <p id="workout-exercise-empty-state" class="p-5 text-center text-zinc-500" hidden>Brak ćwiczeń w tym treningu.</p>
+                <p id="workout-exercise-empty-state" class="p-5 text-center text-muted" hidden>Brak ćwiczeń w tym treningu.</p>
             </section>
         </section>
     </main>
 
-    <script src="js/app.js?v=20260628-search"></script>
+    <script src="js/app.js?v=20260629-workout-sets"></script>
 </body>
 </html>
